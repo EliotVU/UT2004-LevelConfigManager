@@ -12,7 +12,7 @@ var() int CheckPointUses;
 
 simulated event PawnEnteredVolume( Pawn Other )
 {
-	if( Other != none && Other.Controller != none && PlayerController(Other) != none )
+	if( Other != none && PlayerController(Other.Controller) != none )
 	{
 		// Notify BTimes that this user has entered a checkpoint volume!
 		TriggerEvent( 'BTimes_SoloCheckPointVolume', self, Other );
