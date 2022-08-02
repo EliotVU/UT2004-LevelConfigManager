@@ -7,7 +7,7 @@ A ViewShaker that works online because ''bNoDelete'' is true so that the trigger
 
 ;Activation Type : Trigger
 
-;On Activation : The instigator his camera will be shaked.
+;On Activation : The instigator's camera will be shaked in offline and online games.
 ==============================================================================*/
 class LCA_NetViewShaker extends ViewShaker;
 

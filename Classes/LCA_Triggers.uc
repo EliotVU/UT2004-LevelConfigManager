@@ -6,7 +6,7 @@ class LCA_Triggers extends Triggers
 	hidecategories(Lighting,Lightcolor,Karma,Force,Sound)
 	abstract;
 
-#Exec Texture Import File=Textures\S_LCAA.PCX Name=A_ActorIcon MIPS=0 MASKED=1 Alpha=1 NormalLOD=0
+#exec Texture Import File=Textures\Trigger.pcx Name=S_Trigger Mips=Off MASKED=1
 
 var() protected bool bEnabled;
 var protected editconst bool bEnabled_Bak;
@@ -87,7 +87,7 @@ DefaultProperties
 	bEnabled=True
 	bEnabled_Bak=True
 	bHidden=True
-	Texture=A_ActorIcon
+	Texture=S_Trigger
 	Info="No Info."
 	CollisionRadius=64.0
 	CollisionHeight=64.0

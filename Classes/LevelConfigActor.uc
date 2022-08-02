@@ -31,7 +31,7 @@ class LevelConfigActor extends Mutator
 	hidedropdown
 	cacheexempt;
 
-#Exec Texture Import File=Textures\S_Master.pcx Name=S_LA MASKED=1 Alpha=1
+#exec Texture Import File=Textures\Master.pcx Name=S_LA Mips=Off MASKED=1
 
 /** If TRUE then certain debug log messages will be logged. */
 var config noexport bool bDebug;

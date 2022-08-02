@@ -9,8 +9,6 @@ Class LCA_GameSpeedModifier Extends LCA_Triggers
 	HideCategories(Message,LCA_Triggers)
 	Placeable;
 
-#Exec Texture Import File=Textures\S_Speed.dds Name=SpeedIcon MASKED=1 Alpha=1
-
 var() const float GameSpeed;
 var() bool bShowMessage;
 

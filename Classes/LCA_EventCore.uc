@@ -1,12 +1,12 @@
 //==============================================================================
 //	LevelConfigManager (C) 2006 - 2010 Eliot Van Uytfanghe All Rights Reserved.
 //==============================================================================
-class LCA_EventCore extends Info
+class LCA_EventCore extends LCA_Triggers
 	placeable;
 
-var() name BeginPlayEvent;
-var() name MatchStartingEvent;
-var() name ResetEvent;
+var(Events) name BeginPlayEvent;
+var(Events) name MatchStartingEvent;
+var(Events) name ResetEvent;
 
 simulated event BeginPlay()
 {
@@ -28,5 +28,5 @@ function Reset()
 
 defaultproperties
 {
-	Texture=A_ActorIcon
+	bCollideActors=false
 }

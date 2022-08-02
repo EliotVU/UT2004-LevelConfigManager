@@ -1,11 +1,13 @@
-//==============================================================================
-//	LevelConfigManager (C) 2006 - 2010 Eliot Van Uytfanghe All Rights Reserved.
-//==============================================================================
-//==============================================================================
-// Teleporter which can use multi urls which change every time when triggerd.
-// Coded by Eliot aka ->UT2X<-Eliot.
-//==============================================================================
+/*==============================================================================
+LevelConfigManager (C) 2006 - 2010 Eliot Van Uytfanghe All Rights Reserved.
+
+;Activation Type : Touch, Trigger
+
+;On Activation : The instigator will be teleported to the active URL, the URL works like a sequence that may be progressed by triggering this teleporter. This actor can teleport vehicles.
+==============================================================================*/
 class LCA_EnhancedTeleporter extends Teleporter;
+
+#exec Texture Import File=Textures\Teleport.pcx Name=S_Teleport Mips=Off MASKED=1
 
 var() array<string> Order;
 var() class<Emitter> TeleportEffect;
@@ -18,7 +20,7 @@ var() enum ETeleportType
 	TP_OrderTeleport,
 } TeleportType;
 
-Function PostBeginPlay()
+event PostBeginPlay()
 {
 	bEnabled_bak = bEnabled;
 	if( TeleportType == TP_OrderTeleport )
@@ -26,12 +28,12 @@ Function PostBeginPlay()
 	Super.PostBeginPlay();
 }
 
-Function bool IsAllowed( Actor Other )
+function bool IsAllowed( Actor Other )
 {
 	return ClassIsChildOf( Other.Class, AllowedClass );
 }
 
-Event Touch( Actor Other )
+event Touch( Actor Other )
 {
 	if( Other != None && (IsAllowed( Other ) && bEnabled) )
 	{
@@ -44,9 +46,9 @@ Event Touch( Actor Other )
 	}
 }
 
-Simulated Function bool Accept( Actor Incoming, Actor Source )
+simulated function bool Accept( Actor Incoming, Actor Source )
 {
-	Super.Accept(Incoming,Source);
+	super.Accept(Incoming,Source);
 	if( Incoming.IsA('Vehicle') )
 	{
 		// Hack: for karma Vehicles.
@@ -56,14 +58,14 @@ Simulated Function bool Accept( Actor Incoming, Actor Source )
 		Incoming.bCanTeleport = False;
 		Incoming.SetPhysics( PHYS_Karma );
 		if( KarmaParamsRBFull(Incoming.KParams) != None )
-          Incoming.KSetStayUpright( KarmaParamsRBFull(Incoming.KParams).Default.bKStayUpright, KarmaParamsRBFull(Incoming.KParams).Default.bKAllowRotate );
+          Incoming.KSetStayUpright( KarmaParamsRBFull(Incoming.KParams).Default.bKStayUpright, KarmaParamsRBFull(Incoming.KParams).default.bKAllowRotate );
 	}
 	else if( Incoming.IsA('Pawn') )
 		Incoming.SetRotation( Rotation );
 	return IsAllowed( Incoming );
 }
 
-Function Trigger( Actor Other, Pawn EventInstigator )
+function Trigger( Actor Other, Pawn EventInstigator )
 {
 	if( TeleportType == TP_ToggleEnabled )
 		Super.Trigger(Other,EventInstigator);
@@ -76,16 +78,16 @@ Function Trigger( Actor Other, Pawn EventInstigator )
 	}
 }
 
-Function Reset()
+function Reset()
 {
-	Super.Reset();
+	super.Reset();
 	bEnabled = bEnabled_bak;
 	CurrentURL = 0;
 	URL = Order[0];
 }
 
 // Removed anti-vehicle teleport for bots.
-Event int SpecialCost( Pawn Other, ReachSpec Path )
+event int SpecialCost( Pawn Other, ReachSpec Path )
 {
 	if( (Teleporter(Path.Start) == None) || ((Path.reachFlags & 32) == 0) )
 		return 0;
@@ -94,9 +96,10 @@ Event int SpecialCost( Pawn Other, ReachSpec Path )
 	return 0;
 }
 
-DefaultProperties
+defaultproperties
 {
-	AllowedClass=Class'Pawn'
+	AllowedClass=class'Pawn'
 	TeleportType=TP_OrderTeleport
 	CurrentURL=0
+	Texture=S_Teleport
 }
