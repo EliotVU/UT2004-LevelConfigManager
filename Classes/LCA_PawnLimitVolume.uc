@@ -16,11 +16,12 @@ class LCA_PawnLimitVolume extends LCA_Volumes;
 var protected int PawnsLimit;
 var() int RequiredPawns;
 var() bool bAllowMonsters;
+var() name OnLeaveEmptyEvent;
 
-simulated event PawnEnteredVolume( Pawn Other )
+simulated event Touch( Actor Other )
 {
 	if( (PawnsLimit >= RequiredPawns) || ((Other.IsA('Monster') && !bAllowMonsters)) )return;
-	if( Other != None && (bEnabled) )
+	if( Other != None && Other.IsA('xPawn') && (bEnabled) )
 	{
 		++ PawnsLimit;
 		if( PawnsLimit >= RequiredPawns )
@@ -32,12 +33,16 @@ simulated event PawnEnteredVolume( Pawn Other )
 	}
 }
 
-simulated event PawnLeavingVolume( Pawn Other )
+simulated event UnTouch( Actor Other )
 {
-	if( Other != None && (bEnabled && !((Other.IsA('Monster') && !bAllowMonsters))) )
+	if( Other != None && Other.IsA('xPawn') && (bEnabled && !((Other.IsA('Monster') && !bAllowMonsters))) ){
 		-- PawnsLimit;
-}
 
+		if( PawnsLimit <= 0 ){
+			TriggerEvent( OnLeaveEmptyEvent, Self, Other );
+		}
+	}
+}
 
 function Reset()
 {

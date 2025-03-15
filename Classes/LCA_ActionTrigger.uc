@@ -9,6 +9,8 @@ class LCA_ActionTrigger extends LCA_Triggers
 	hidecategories(Message)
 	placeable;
 
+#exec Texture Import File=Textures\ActionTrigger.pcx Name=S_ActionTrigger Mips=Off MASKED=1
+
 var() editinlinenotify export array<LCA_ActorAction> Actions;
 
 function Trigger( Actor Other, Pawn Player )
@@ -31,5 +33,6 @@ function Trigger( Actor Other, Pawn Player )
 
 defaultproperties
 {
-	Info="When triggered, all actions will be activated."
+	Info="Performs all actions when triggered."
+	Texture=S_ActionTrigger
 }

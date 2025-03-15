@@ -5,12 +5,14 @@ LevelConfigManager (C) 2006 - 2010 Eliot Van Uytfanghe All Rights Reserved.
 
 ;On Activation : The material slot of the specified {{classgames|MaterialSwitch}} will be incremented, if the end is reached it will start all over again.
 ==============================================================================*/
-class LCA_NetMaterialTrigger extends Info
+class LCA_NetMaterialTrigger extends Triggers
 	placeable;
 
-var() editinlineuse MaterialSwitch MaterialSwitch;
+#exec Texture Import File=Textures\NetMaterialTrigger.pcx Name=S_NetMaterialTrigger Mips=Off MASKED=1
 
-var int InitSlot, NewSlot, OldSlot;
+var() editinline MaterialSwitch MaterialSwitch;
+var int InitSlot;
+var protected int NewSlot;
 
 replication
 {
@@ -20,12 +22,17 @@ replication
 
 simulated function SetMaterialNum( int slot )
 {
-	if( MaterialSwitch != none )
+	if( MaterialSwitch != none && MaterialSwitch.Current != slot )
 	{
 		MaterialSwitch.Current = slot;
 		MaterialSwitch.Material = MaterialSwitch.Materials[slot];
 	}
 	NewSlot = slot;
+}
+
+simulated function UpdateMaterialSlot()
+{
+	SetMaterialNum( NewSlot );
 }
 
 simulated event PostBeginPlay()
@@ -53,15 +60,11 @@ simulated event PostNetBeginPlay()
 
 simulated event PostNetReceive()
 {
-	if( NewSlot != OldSlot )
-	{
-		SetMaterialNum( NewSlot );
-		OldSlot = NewSlot;
-	}
+	UpdateMaterialSlot();
 	super.PostNetReceive();
 }
 
-function Trigger( Actor Other, Pawn P )
+function Trigger( Actor other, Pawn player )
 {
 	if( Level.NetMode != NM_Client )
 	{
@@ -73,10 +76,28 @@ function Trigger( Actor Other, Pawn P )
 
 		if( Level.NetMode == NM_Standalone )
 		{
-			PostNetReceive();
+			UpdateMaterialSlot();
 		}
 	}
-	super.Trigger( Other, P );
+	super.Trigger( other, player );
+}
+
+function UnTrigger( Actor other, Pawn player )
+{
+	if( Level.NetMode != NM_Client )
+	{
+		if( -- NewSlot < 0 )
+		{
+        	NewSlot = MaterialSwitch.Materials.Length - 1;
+		}
+		NetUpdateTime = Level.TimeSeconds - 1;
+
+		if( Level.NetMode == NM_Standalone )
+		{
+			UpdateMaterialSlot();
+		}
+	}
+	super.UnTrigger( other, player );
 }
 
 function Reset()
@@ -88,7 +109,7 @@ function Reset()
 
 		if( Level.NetMode == NM_Standalone )
 		{
-			PostNetReceive();
+			UpdateMaterialSlot();
 		}
 	}
 	super.Reset();
@@ -97,13 +118,10 @@ function Reset()
 defaultproperties
 {
 	RemoteRole=ROLE_DumbProxy
-
 	bNetNotify=true
 	bAlwaysRelevant=true
-
 	bNoDelete=true
+	bCollideActors=false
 
-	NetUpdateFrequency=0.1
-
-	Texture=A_ActorIcon
+	Texture=S_NetMaterialTrigger
 }

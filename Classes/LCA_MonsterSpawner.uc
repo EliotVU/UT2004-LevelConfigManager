@@ -9,10 +9,12 @@ class LCA_MonsterSpawner extends LCA_Triggers
 	placeable
 	hidecategories(Message);
 
+#exec Texture Import File=Textures\MonsterSpawner.pcx Name=S_MonsterSpawner Mips=Off MASKED=1
+
 var() float SpawnTime;									// Amount of time before spawning next monster.
 struct sMonsterData
 {
-	var() class<Monster> MonsterClass;					// Monster to spawn.
+	var() editinlineuse class<Monster> MonsterClass;					// Monster to spawn.
 	var() class<AIController> MonsterController;		// Controller which handles how this monster acts.
 	var() array<LevelConfigActor.sProperty> Properties;
 	var() float MonsterSize;
@@ -157,4 +159,6 @@ defaultproperties
 
 	MonsterList(0)=(MonsterClass=Class'SkaarjPack.Krall',MonsterController=None,MonsterSize=0,Properties=((PropertyName="ScoringValue",PropertyValue="5"),(PropertyName="Health",PropertyValue="360")))
 	bDirectional=true
+
+	Texture=S_MonsterSpawner
 }

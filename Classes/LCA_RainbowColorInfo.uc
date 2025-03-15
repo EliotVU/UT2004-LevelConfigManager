@@ -50,6 +50,4 @@ defaultproperties
 	bNoDelete=true
 	RemoteRole=ROLE_SimulatedProxy
 	bAlwaysTick=true
-
-	Texture=A_ActorIcon
 }

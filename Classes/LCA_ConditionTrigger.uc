@@ -9,6 +9,8 @@ class LCA_ConditionTrigger extends LCA_Triggers
 	hidecategories(Message)
 	placeable;
 
+#exec Texture Import File=Textures\ConditionTrigger.pcx Name=S_ConditionTrigger Mips=Off MASKED=1
+
 /** List of conditions the Instigator will be tested against. */
 var() editinlinenotify export array<LCA_Condition> Conditions;
 
@@ -63,4 +65,6 @@ function Trigger( Actor Other, Pawn Player )
 defaultproperties
 {
 	Info="When triggered, all conditions will need to be meet, if true OnTrueAction will be activated, if false OnFalseAction will be activated."
+
+	Texture=S_ConditionTrigger
 }
