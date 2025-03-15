@@ -20,13 +20,13 @@ var() name OnLeaveEmptyEvent;
 
 simulated event Touch( Actor Other )
 {
-	if( (PawnsLimit >= RequiredPawns) || ((Other.IsA('Monster') && !bAllowMonsters)) )return;
-	if( Other != None && Other.IsA('xPawn') && (bEnabled) )
+	if( (PawnsLimit >= RequiredPawns) || ((Monster(Other) != none && !bAllowMonsters)) )return;
+	if( Other != None && bEnabled )
 	{
 		++ PawnsLimit;
 		if( PawnsLimit >= RequiredPawns )
 		{
-			TriggerEvent( Event, Self, Other );
+			TriggerEvent( Event, Self, Pawn(Other) );
 			if( bTriggerOnceOnly )
 				bEnabled = False;
 		}
@@ -35,11 +35,11 @@ simulated event Touch( Actor Other )
 
 simulated event UnTouch( Actor Other )
 {
-	if( Other != None && Other.IsA('xPawn') && (bEnabled && !((Other.IsA('Monster') && !bAllowMonsters))) ){
+	if( Other != None && (bEnabled && !((Monster(Other) != none && !bAllowMonsters))) ){
 		-- PawnsLimit;
 
 		if( PawnsLimit <= 0 ){
-			TriggerEvent( OnLeaveEmptyEvent, Self, Other );
+			TriggerEvent( OnLeaveEmptyEvent, Self, Pawn(Other) );
 		}
 	}
 }
