@@ -1,0 +1,63 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "play",
+            "type": "process",
+            "command": "UT2004.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/../System"
+            },
+            "args": [
+                "AS-LevelConfigManagerExample.ut2?SpectatorOnly=0?NumBots=6?NoBots=0?QuickStart=1",
+                "-norunaway",
+                "-ini=${workspaceFolder}/play.ini"
+            ],
+        },
+        {
+            "label": "play 64",
+            "type": "process",
+            "command": "ut2004-win64x.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/../System"
+            },
+            "args": [
+                "AS-LevelConfigManagerExample.ut2?SpectatorOnly=0?NumBots=6?NoBots=0?QuickStart=1",
+                "-norunaway",
+                "-ini=${workspaceFolder}/play.ini"
+            ],
+        },
+        {
+            "label": "server",
+            "type": "process",
+            "command": "System/UCC.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/../"
+            },
+            "isBackground": true,
+            "args": [
+                "Server",
+                "AS-LevelConfigManagerExample.ut2?NumBots=6?NoBots=0?QuickStart=1?BalanceTeams=0?BotMode=5",
+                "-norunaway",
+                "-ini=${workspaceFolder}/play.ini"
+            ],
+        },
+        {
+            "label": "client",
+            "type": "process",
+            "command": "UT2004.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/../System"
+            },
+            "args": [
+                "127.0.0.1",
+                "-newwindow",
+                "-log",
+                "-minimized",
+                "-ini=${workspaceFolder}/play.ini"
+            ],
+        },
+    ]
+}
