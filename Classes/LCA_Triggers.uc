@@ -1,7 +1,6 @@
 //==============================================================================
 //	LevelConfigManager (C) 2006 - 2010 Eliot Van Uytfanghe All Rights Reserved.
 //==============================================================================
-// Coded by Eliot aka ->UT2x<-Eliot @2007-2008.
 class LCA_Triggers extends Triggers
 	hidecategories(Lighting,Lightcolor,Karma,Force,Sound)
 	abstract;
@@ -11,7 +10,7 @@ class LCA_Triggers extends Triggers
 var() protected bool bEnabled;
 var protected editconst bool bEnabled_Bak;
 
-var() localized editconst noexport const string Info;
+var deprecated localized editconst noexport const string Info;
 var(Message) const color MessageColor;
 var(Message) const localized string Message;
 
@@ -37,7 +36,7 @@ event PostBeginplay()
 
 simulated function bool IsPawnRelevant( Pawn Other )
 {
-	return (!Other.IsA('Monster') && Other != None);
+	return (Monster(Other) == none && Other != None);
 }
 
 /*Function Touch( Actor Other )

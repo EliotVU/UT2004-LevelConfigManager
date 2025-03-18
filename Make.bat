@@ -13,7 +13,7 @@ cd..
 cd system
 
 del /q "%project_name%.*"
-ucc.exe Editor.MakeCommandlet -EXPORTCACHE -ini="%project_dir%make.ini"
+ucc.exe Editor.MakeCommandlet -ini="%project_dir%make.ini"
 echo Copying files to ./System/
 copy /b /y "%project_name%.u" /b /y "..\%project_name%\System\%project_name%%version%.u"
 

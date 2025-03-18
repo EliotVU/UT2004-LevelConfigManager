@@ -1,48 +1,105 @@
-/**
- * ;Author : Eliot Van Uytfanghe
- * ;Created At : 2010
- * ;Last Updated : ???
- */
+/** Copyright 2006-2025 Eliot Van Uytfanghe. All Rights Reserved. */
+class LCA_TouchTriggerVolume extends PhysicsVolume
+    hidecategories(Force,Sound,Lighting,LightColor);
 
-/*==============================================================================
-Copyright 2006-2010 Eliot Van Uytfanghe. All Rights Reserved.
+var() bool bEnabled "Enabled state of the volume; you can trigger the volume to toggle this state.";
+var editconst bool bEnabled_bak;
 
-;Activation Type : Touch
+var() bool bTriggerOnceOnly "Disable the volume after the first trigger event.";
+var() bool bAcceptPlayersOnly "Only accept player (bots or human, but no monsters) controlled pawns.";
 
-;On Activation : Just like a [[Trigger]] but with volume collision.
-==============================================================================*/
-class LCA_TouchTriggerVolume extends LCA_Volumes
-	hidecategories(PhysicsVolume);
+var() class<Actor> ConstraintActorClass "Restrict the physics volume effects only to actors of this class.";
+var deprecated name ActorUnTouchVolumeEvent;
 
-var() class<Actor> ConstraintActorClass;
-var() name ActorUnTouchVolumeEvent;
-
-simulated event Touch( Actor Other )
+replication
 {
-	super(Volume).Touch( Other );
-	if( bEnabled && Other != none && ClassIsChildOf( Other.Class, ConstraintActorClass ) )
-	{
-		if( bTriggerOnceOnly )
-		{
-			bEnabled = false;
-		}
-
-		if( Event != '' )
-			TriggerEvent( Event, self, Pawn(Other) );
-	}
+    reliable if (bNetDirty)
+        bEnabled;
 }
 
-simulated event UnTouch( Actor Other )
+simulated protected function OnAcceptedEnter(Actor other)
 {
-	super(Volume).UnTouch( Other );
-	if( bEnabled && Other != none && ClassIsChildOf( Other.Class, ConstraintActorClass ) )
-	{
-		if( ActorUnTouchVolumeEvent != '' )
-			TriggerEvent( ActorUnTouchVolumeEvent, self, Pawn(Other) );
-	}
+    if (Event != '')
+        TriggerEvent(Event, self, Pawn(other));
+}
+
+simulated protected function OnAcceptedLeave(Actor other)
+{
+    if (Event != '')
+        UnTriggerEvent(Event, self, Pawn(other));
+}
+
+simulated function bool CanAccept(Actor other)
+{
+    return ClassIsChildOf(other.Class, ConstraintActorClass) && (!bAcceptPlayersOnly || Pawn(other).IsPlayerPawn());
+}
+
+simulated event Touch(Actor other)
+{
+    if (bEnabled && bool(other) && CanAccept(other))
+    {
+        super(Volume).Touch(other);
+
+        if(bTriggerOnceOnly)
+        {
+            bEnabled = false;
+        }
+
+        OnAcceptedEnter(other);
+    }
+}
+
+simulated event UnTouch(Actor other)
+{
+    if (bEnabled && bool(other) && CanAccept(other))
+    {
+        super(Volume).UnTouch(other);
+
+        OnAcceptedLeave(other);
+    }
+}
+
+simulated event PawnEnteredVolume(Pawn other);
+simulated event PawnLeavingVolume(Pawn other);
+function PlayerPawnDiedInVolume(Pawn other)
+{
+    UnTouch(other);
+}
+
+event PostBeginPlay()
+{
+    super.PostBeginPlay();
+    bEnabled_bak = bEnabled;
+}
+
+function Trigger(Actor other, Pawn Player)
+{
+    bEnabled = !bEnabled;
+
+    if (bEnabled) foreach TouchingActors(ConstraintActorClass, other) {
+        Touch(other);
+    }
+    else { foreach TouchingActors(ConstraintActorClass, other) {
+        UnTouch(other);
+    }}
+}
+
+function Reset()
+{
+    super.Reset();
+    bEnabled = bEnabled_bak;
 }
 
 defaultproperties
 {
-	Info="Triggers its own event whenever touched."
+    bEnabled=true
+    bEnabled_bak=true
+}
+
+defaultproperties
+{
+    bAcceptPlayersOnly=true
+    ConstraintActorClass=Class'xPawn'
+
+    bGameRelevant=true
 }

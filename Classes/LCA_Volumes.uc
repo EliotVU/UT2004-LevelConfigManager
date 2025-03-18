@@ -17,12 +17,11 @@ var() bool bTriggerOnceOnly;
 
 var LevelConfigActor Master;
 
-/** The behavior of this volume described and viewable from [[UnrealEd]]. */
-var() editconst const string Info;
+var deprecated editconst const string Info;
 
 replication
 {
-	reliable if( bNetDirty && (Role == Role_Authority) )
+	reliable if (bNetDirty)
 		bEnabled;
 }
 
@@ -31,7 +30,7 @@ simulated function bool IsPawnRelevant( Pawn Other )
 	if( Other == None || Other.Controller == none )
 		return false;
 
-	return (!Other.IsA('Monster') && bEnabled);
+	return (Monster(Other) == none && bEnabled);
 }
 
 event PostBeginPlay()

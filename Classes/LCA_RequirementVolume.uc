@@ -1,71 +1,64 @@
-/**
- * ;Author : Eliot Van Uytfanghe
- * ;Created At : 2010
- * ;Last Updated : ???
- */
-
-/*==============================================================================
-Copyright 2006-2010 Eliot Van Uytfanghe. All Rights Reserved.
-
-;Activation Type : Enter
-
-;On Activation : Checks all the set '''Requirements''' if all are met then it will activate the '''OnFalseAction'', if one is not met then it will activate the '''OnTrueAction'''.
-==============================================================================*/
-class LCA_RequirementVolume extends LCA_Volumes;
+/** Copyright 2006-2025 Eliot Van Uytfanghe. All Rights Reserved. */
+class LCA_RequirementVolume extends LCA_TouchTriggerVolume;
 
 var() editinlinenotify export array<LCA_Condition> Requirements;
 var() editinlinenotify export LCA_ActorAction OnFalseAction, OnTrueAction;
+var() const bool bEmitDeniedMessage;
 
-simulated function bool MeetsRequirements( Pawn Other, out int i )
+simulated function int MeetsRequirements(Actor other)
 {
-	for( i = 0; i < Requirements.Length; ++ i )
-	{
-		if( Requirements[i] != none && !Requirements[i].GetCondition( Other ) )
-		{
-			return false;
-		}
-	}
-	return true;
+    local int i;
+
+    for (i = 0; i < Requirements.Length; ++ i)
+    {
+        if (bool(Requirements[i]) && !Requirements[i].GetCondition(other))
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
-simulated event PawnEnteredVolume( Pawn Other )
+simulated protected function OnAcceptedEnter(Actor other)
 {
-	local int i;
-	local string s;
+    local int conditionIndex;
+    local string deniedMessage;
 
-	// Ignore bots!
-	if( IsPawnRelevant( Other ) && Other.PlayerReplicationInfo != none && !Other.PlayerReplicationInfo.bBot )
-	{
-		if( MeetsRequirements( Other, i ) )
-		{
-			if( bTriggerOnceOnly )
-				bEnabled = False;
+    super.OnAcceptedEnter(other);
 
-			if( OnTrueAction != none )
-			{
-				OnTrueAction.ActivateAction( Other, Other );
-			}
-		}
-		else
-		{
-			if( Requirements.Length > 0 )
-			{
-				s = Requirements[i].GetDeniedMessage();
-				if( s != "" )
-				{
-					xPawn(Other).ClientMessage( s );
-				}
-			}
+    conditionIndex = MeetsRequirements(other);
+    if (conditionIndex != -1)
+    {
+        if (OnTrueAction != none)
+        {
+            OnTrueAction.ActivateAction(other, other);
+        }
+    }
+    else
+    {
+        if (bEmitDeniedMessage && Requirements.Length > 0 && bool(xPawn(other)))
+        {
+            deniedMessage = Requirements[conditionIndex].GetDeniedMessage();
+            if (deniedMessage != "")
+            {
+                xPawn(other).ClientMessage(deniedMessage);
+            }
+        }
 
-			if( OnFalseAction != none )
-			{
-				OnFalseAction.ActivateAction( Other, Other );
-			}
-		}
-	}
+        if (OnFalseAction != none)
+        {
+            OnFalseAction.ActivateAction(other, other);
+        }
+    }
+}
+
+simulated protected function OnAcceptedLeave(Actor other)
+{
+    super.OnAcceptedLeave(other);
 }
 
 defaultproperties
 {
-	Info="Players must meet the specified requirements in order to enter this volume."
+    bEmitDeniedMessage=true
 }
