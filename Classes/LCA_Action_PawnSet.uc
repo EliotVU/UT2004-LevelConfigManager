@@ -45,7 +45,6 @@ Function bool InitActionFor( ScriptedController C )
 				else Causer.SetPropertyText( Set[i].PropertyName, Set[i].PropertyValue );
 			}
 		}
-		return True;
 	}
 	return False;
 }

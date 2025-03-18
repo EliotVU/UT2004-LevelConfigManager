@@ -1,10 +1,6 @@
 {
     "folders": [
         {
-            "name": "LevelConfigManager",
-            "path": "."
-        },
-        {
             "name": "UT2004Root",
             "path": "../"
         }

@@ -60,11 +60,10 @@ Function bool InitActionFor( ScriptedController C )
 				INVClass = Inventory;
 			}
 
-			if( Inventory.IsA('Weapon') )
-				Target.GiveWeapon( string(INVClass) );
+			if( Class<Weapon>(Inventory) != none )
+				Target.GiveWeapon( string(Class<Weapon>(INVClass)) );
 			else Target.CreateInventory( string(INVClass) );
 		}
-		return True;
 	}
 	return False;
 }
