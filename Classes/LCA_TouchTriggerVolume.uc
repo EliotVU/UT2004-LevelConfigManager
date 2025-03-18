@@ -8,7 +8,7 @@ var editconst bool bEnabled_bak;
 var() bool bTriggerOnceOnly "Disable the volume after the first trigger event.";
 var() bool bAcceptPlayersOnly "Only accept player (bots or human, but no monsters) controlled pawns.";
 
-var() class<Actor> ConstraintActorClass "Restrict the physics volume effects only to actors of this class.";
+var() Class<Actor> ConstraintActorClass "Restrict the triggering event only to actors of this class.";
 var deprecated name ActorUnTouchVolumeEvent;
 
 replication
@@ -19,14 +19,12 @@ replication
 
 simulated protected function OnAcceptedEnter(Actor other)
 {
-    if (Event != '')
-        TriggerEvent(Event, self, Pawn(other));
+    TriggerEvent(Event, self, Pawn(other));
 }
 
 simulated protected function OnAcceptedLeave(Actor other)
 {
-    if (Event != '')
-        UnTriggerEvent(Event, self, Pawn(other));
+    UnTriggerEvent(Event, self, Pawn(other));
 }
 
 simulated function bool CanAccept(Actor other)
@@ -36,25 +34,48 @@ simulated function bool CanAccept(Actor other)
 
 simulated event Touch(Actor other)
 {
-    if (bEnabled && bool(other) && CanAccept(other))
-    {
-        super(Volume).Touch(other);
+    local vector HitLocation,HitNormal;
+    local Actor SpawnedEntryActor;
 
-        if(bTriggerOnceOnly)
+    // Copied from super class.
+    // p.s. bWaterVolume logic cannot be controlled, (hard coded in C++)
+    // So we keep this code active regardless of our restrictions.
+    if (bWaterVolume && Pawn(other) != none) {
+        if ( (Level.TimeSeconds - Pawn(Other).SplashTime > 0.3) && (PawnEntryActor != None) && !Level.bDropDetail && (Level.DetailMode != DM_Low) && EffectIsRelevant(Other.Location,false) )
         {
+            if ( !TraceThisActor(HitLocation, HitNormal, Other.Location - Other.CollisionHeight*vect(0,0,1), Other.Location + Other.CollisionHeight*vect(0,0,1)) )
+            {
+                SpawnedEntryActor = Spawn(PawnEntryActor,Other,,HitLocation,rot(16384,0,0));
+            }
+        }
+
+        // Disabled, better logic below; simulated and not exclusive to player pawns.
+        // if ( (Role == ROLE_Authority) && Other.IsPlayerPawn() )
+        //     TriggerEvent(Event,self, Other);
+    }
+
+    if (bEnabled && bool(other) && CanAccept(other)) {
+        if (bTriggerOnceOnly && Role == ROLE_Authority) {
             bEnabled = false;
         }
 
+        // Water splash effect and damage effects etc.
+        super.Touch(other);
+
         OnAcceptedEnter(other);
+    } else {
+        // Water splash effect. (We cannot disable the swimming physics even if we don't accept the pawn)
+        if ( bWaterVolume && Other.CanSplash() )
+            PlayEntrySplash(Other);
     }
 }
 
 simulated event UnTouch(Actor other)
 {
-    if (bEnabled && bool(other) && CanAccept(other))
-    {
-        super(Volume).UnTouch(other);
+    // Water splash effect. (We cannot disable the swimming physics even if we don't accept the pawn)
+    super.UnTouch(other);
 
+    if (bEnabled && bool(other) && CanAccept(other)) {
         OnAcceptedLeave(other);
     }
 }
@@ -63,7 +84,9 @@ simulated event PawnEnteredVolume(Pawn other);
 simulated event PawnLeavingVolume(Pawn other);
 function PlayerPawnDiedInVolume(Pawn other)
 {
-    UnTouch(other);
+    if (bEnabled && bool(other) && CanAccept(other)) {
+        OnAcceptedLeave(other);
+    }
 }
 
 event PostBeginPlay()
@@ -77,10 +100,18 @@ function Trigger(Actor other, Pawn Player)
     bEnabled = !bEnabled;
 
     if (bEnabled) foreach TouchingActors(ConstraintActorClass, other) {
-        Touch(other);
+        if (CanAccept(other)) {
+            super.Touch(other);
+
+            OnAcceptedEnter(other);
+        }
     }
     else { foreach TouchingActors(ConstraintActorClass, other) {
-        UnTouch(other);
+        if (CanAccept(other)) {
+            super.UnTouch(other);
+
+            OnAcceptedLeave(other);
+        }
     }}
 }
 

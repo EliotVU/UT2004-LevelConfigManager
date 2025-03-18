@@ -27,6 +27,11 @@ simulated protected function OnAcceptedEnter(Actor other)
 
     super.OnAcceptedEnter(other);
 
+    // Server only.
+    if (Role != ROLE_Authority) {
+        return;
+    }
+
     conditionIndex = MeetsRequirements(other);
     if (conditionIndex != -1)
     {
