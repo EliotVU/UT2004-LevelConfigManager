@@ -2,8 +2,6 @@
 
 Provides a bunch of tools to help Level Designers do incredible things with **Unreal Tournament 2004**. 
 
-Last Updated @ 09/06/2010 (V3)
-
 ## Usage
 
 1. Install by copying the `LevelConfigManagerV#.u` file to your `/UT2004Root/System/` directory.
